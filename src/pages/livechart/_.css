@@ -1,0 +1,16 @@
+:root {
+    --lcx-p: hsl(var(--p, 209, 100%, 79%));
+}
+
+.btn[data-toggled="true"] {
+    border: var(--lcx-p) solid 0.1rem !important;
+}
+
+.lcx-link {
+    width: fit-content;
+    color: var(--lcx-p)
+}
+
+.lcx-link:hover {
+    text-decoration: underline var(--lcx-p);
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        button {
+            color: #1e1e1e;
+            border: var(--border-px) solid transparent;
+            cursor: pointer;
+            width: 100%;
+            margin: 2px 0;
+        }
+
+        #defaults {
+            display: block !important;
+        }
+
+        #setDefault {
+            background-color: var(--green);
+        }
+
+        #setDefault:hover {
+            background-color: #40a454;
+        }
+
+        #setDefault:disabled {
+            color: var(--green);
+            border-color: var(--green);
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+
+        #clearDefault {
+            background-color: var(--red);
+        }
+
+        #clearDefault:hover {
+            background-color: #c6625c;
+        }
+
+        #clearDefault:disabled {
+            color: var(--red);
+            border-color: var(--red);
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+
+        #feedback {
+            font-size: .85rem;
+            color: var(--green);
+            margin: .1rem 0;
+        }
+
+        #feedback:empty {
+            display: none;
+        }
+    </style>
+
+    <script type="module" src="/global/import.js"></script>
+</head>
+
+
+<body>
+    <div class="section" id="defaults">
+        <p>Library Filters</p>
+        <p id="feedback"></p>
+        <button id="setDefault">Set Default</button>
+        <button id="clearDefault">Clear Default</button>
+    </div>
+
+    <settings class="section" items="overwriteUrl" relations="recentLists behind" relevent></settings>
+</body>
+
+</html>

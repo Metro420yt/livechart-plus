@@ -1,0 +1,66 @@
+:root {
+    --lcx-p: rgb(108 161 211);
+}
+
+.lcx-countdown {
+    color: var(--lcx-p);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.lcx-countdown>.old {
+    color: rgb(88, 110, 130);
+}
+
+
+/* src: https://codepen.io/nzbin/pen/GGrXbp */
+.lcx-loading {
+    left: 15px;
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    color: #9880ff;
+    animation: lcx-loading 1s infinite linear alternate;
+    animation-delay: 0.5s;
+}
+
+.lcx-loading::before,
+.lcx-loading::after {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: 0;
+}
+
+.lcx-loading::before {
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    color: #9880ff;
+    animation: lcx-loading 1s infinite alternate;
+    animation-delay: 0s;
+}
+
+.lcx-loading::after {
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    color: #9880ff;
+    animation: lcx-loading 1s infinite alternate;
+    animation-delay: 1s;
+}
+
+@keyframes lcx-loading {
+    0% {
+        background-color: var(--lcx-p);
+    }
+
+    50%,
+    100% {
+        opacity: .2rem;
+    }
+}

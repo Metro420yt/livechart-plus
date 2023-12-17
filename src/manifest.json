@@ -1,0 +1,61 @@
+{
+  "name": "Livechart+",
+  "description": "Adding features to livechart and anime streaming sites",
+  "version": "0.3.1",
+  "version_name": "Beta 3",
+  "manifest_version": 3,
+  "minimum_chrome_version": "88",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage",
+    "alarms"
+  ],
+  "action": {
+    "default_popup": "pages/settings/popup.html"
+  },
+  "icons": {
+    "192": "assets/icon.png"
+  },
+  "offline_enabled": false,
+  "background": {
+    "service_worker": "index.js",
+    "type": "module"
+  },
+  "host_permissions": [
+    "https://livechart.yuji.app/*",
+    "https://*.livechart.me/*"
+  ],
+  "optional_host_permissions": [
+    "https://*.crunchyroll.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.livechart.me/users/*/library*"
+      ],
+      "css": [
+        "/pages/livechart/library.css"
+      ]
+    },
+    {
+      "matches": [
+        "https://*.livechart.me/*"
+      ],
+      "css": [
+        "/pages/livechart/_.css"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/assets/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAri4y/w0LCsKqVo9Zhh7mFtgZtIloq/CXQITfI/jRoLS0Z/rphcUB4jc/cwSwz86Htc/vpw2XBYJjURz1nTiH6AFcw0mqfPUxTwvLY25ir34aj60XIgt5dlv4Li1yULIgGQvBcaTuCvfmHGwb1iOupL/WZT6H/moVDNSWIWu8O0/0O8Emy3MgDsxFy/GJpjgisRM0Oi39xphCsX8v31zSnQQ5QgGZYkQW1K55V8LCT3Z/zZckmKaCG4IT5cyE0mBQMy2k07rOVE2dl61mtlkwutoLYGqukd/ZhtkDuX+41SykgwMBIc4Dmgr9oKaO/AvzmETru7dY8MKfs3Wc1fpQ9wIDAQAB"
+}

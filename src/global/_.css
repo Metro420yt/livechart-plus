@@ -1,0 +1,113 @@
+:root {
+    --bg: rgb(18, 18, 18);
+    --bg2: rgb(50 50 50);
+    --blue: #4fa7fe;
+    --dark-blue: #285583;
+    --green: #4fc967;
+    --yellow: #f5e669;
+    --red: #ee766f;
+    --font-color: white;
+
+    --border-px: 1px;
+    --body-gap: 5px;
+    --top-padding: 2rem;
+
+    --settings-font-size: .8rem;
+}
+
+body {
+    width: 15rem;
+    background-color: var(--bg);
+    color: var(--font-color);
+    font-family: 'helvetica neue', Arial;
+    gap: var(--body-gap);
+}
+
+main {
+    row-gap: 0;
+}
+
+body,
+main {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: 30rem;
+}
+
+nav {
+    z-index: 2;
+    display: grid;
+
+    grid-template-rows: 1fr;
+    grid-auto-flow: column;
+    align-items: center;
+    gap: .5rem;
+}
+
+.navItem {
+    background-color: var(--dark-blue);
+    text-decoration: none;
+    padding: .2rem;
+    color: var(--font-color);
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: all .1s;
+}
+
+.navItem[important] {
+    background-color: #6d0f0f;
+}
+
+.navItem:hover {
+    transform: scale(1.1);
+}
+
+settings[items=":all"] {
+    gap: .5rem;
+}
+
+settings[items=":all"]>div {
+    align-items: center;
+    gap: .2rem;
+
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-column: 1;
+}
+
+settings[items=":all"]>div>p {
+    grid-column: span 2;
+    margin: 0;
+    font-size: var(--settings-font-size);
+}
+
+settings select {
+    height: calc(2* var(--settings-font-size));
+    overflow: hidden;
+}
+
+settings select:not(:focus-within) {
+    background-image: linear-gradient(to top, rgb(69 69 69), rgb(133 133 133 / 0%) 50%)
+}
+
+.section {
+    background-color: var(--bg2);
+    padding: .1rem;
+    align-items: center;
+    grid-column: auto;
+    display: inherit;
+    align-items: center;
+    justify-content: start;
+
+}
+
+.section>p {
+    grid-column: span 2;
+    margin: 0;
+    font-size: 1rem;
+}
+
+[data-active="false"] {
+    display: none !important;
+}

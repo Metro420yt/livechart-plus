@@ -1,0 +1,49 @@
+:root {
+    --lcx-behind-size: 1rem;
+    --lcx-behind-pos: -.6rem;
+}
+
+
+form[data-controller="anime-release-filter"] [id^="lcx-"].btn {
+    background-color: #121212;
+    width: fit-content;
+}
+
+#lcx-behind {
+    height: inherit;
+    position: relative;
+    user-select: none;
+}
+
+#lcx-behind>img {
+    height: inherit;
+}
+
+#lcx-behind>p {
+    position: absolute;
+    top: var(--lcx-behind-pos);
+    left: var(--lcx-behind-pos);
+
+    background-color: #ff824a;
+
+    width: var(--lcx-behind-size);
+    height: var(--lcx-behind-size);
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.grow>*:not(:first-child) {
+    margin: 0;
+    margin-left: 1rem;
+}
+
+#lcx-updatedTime {
+    font-size: small;
+    color: #bbbbbb;
+    font-style: italic;
+}

@@ -1,0 +1,35 @@
+:root {
+    --toggleWatched-opacity-idle: .5;
+}
+
+#lcx-toggleWatched {
+    position: fixed;
+    bottom: 3rem;
+    left: 1rem;
+
+    color: black;
+    background-color: #f47521;
+
+    z-index: 101;
+    width: fit-content;
+    padding: 0.6rem 0.75rem 0.6rem 0.5rem;
+    transition: all .2s, opacity .5s;
+    opacity: var(--toggleWatched-opacity-idle);
+    border-radius: 0.5rem
+}
+
+#lcx-toggleWatched:hover {
+    opacity: 1;
+    background-color: #c45f1b;
+}
+
+#lcx-epMsg {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 1.7rem;
+    color: #363636;
+}
+
+#lcx-epMsg:empty {
+    display: none;
+}
