@@ -1,0 +1,38 @@
+name: Webstore Publish
+
+on:
+  push:
+    branches: 
+      master
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: vimtor/action-zip@v1.1
+        with:
+          files: src
+          dest: src.zip
+  build:
+    name: Publish webextension
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - name: Build
+      run: |
+        npm ci
+        npm run build
+    - name: Upload & release
+      uses: mnao305/chrome-extension-upload@v4.0.1
+      with:
+        file-path: src.zip
+        publish: false
+        extension-id: ${{vars.extensionId}}
+        client-id: ${{ secrets.CLIENT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        refresh-token: ${{ secrets.REFRESH_TOKEN }}
