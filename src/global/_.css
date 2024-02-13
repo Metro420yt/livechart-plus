@@ -34,14 +34,21 @@ main {
     max-height: 30rem;
 }
 
-nav {
+nav,
+footer {
     z-index: 2;
-    display: grid;
-
-    grid-template-rows: 1fr;
-    grid-auto-flow: column;
+    display: flex;
+    gap: 0.2rem;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    gap: .5rem;
+    justify-content: space-evenly;
+}
+
+footer {
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bg);
 }
 
 .navItem {
@@ -53,6 +60,7 @@ nav {
     cursor: pointer;
     user-select: none;
     transition: all .1s;
+    flex-grow: 1;
 }
 
 .navItem[important] {
@@ -60,7 +68,7 @@ nav {
 }
 
 .navItem:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 settings[items=":all"] {
@@ -76,7 +84,7 @@ settings[items=":all"]>div {
     grid-column: 1;
 }
 
-settings[items=":all"]>div>p {
+settings[items=":all"] h3 {
     grid-column: span 2;
     margin: 0;
     font-size: var(--settings-font-size);
@@ -87,7 +95,7 @@ settings select {
     overflow: hidden;
 }
 
-settings select:not(:focus-within) {
+settings select[multiple]:not(:focus-within) {
     background-image: linear-gradient(to top, rgb(69 69 69), rgb(133 133 133 / 0%) 50%)
 }
 

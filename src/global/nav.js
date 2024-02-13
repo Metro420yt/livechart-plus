@@ -2,6 +2,8 @@ import { navData } from '../consts.js'
 
 const navbar = document.getElementsByTagName('nav')[0] || document.createElement('nav')
 document.body.prepend(navbar)
+const footer = document.createElement('footer')
+document.body.appendChild(footer)
 
 for (const item of navData) {
     if (!item.data) item.data = {}
@@ -22,7 +24,7 @@ for (const item of navData) {
 
     if (item.events) for (const event in item.events) element.addEventListener(event, item.events[event])
 
-    navbar.appendChild(element)
+    item.footer ? footer.appendChild(element) : navbar.appendChild(element)
 }
 
 
@@ -35,5 +37,4 @@ if (requestingPerms?.length > 0) {
     permReq.classList.add('navItem')
     permReq.setAttribute('important', '')
     document.body.prepend(permReq)
-    // document.querySelector('nav').prepend(permReq)
 }

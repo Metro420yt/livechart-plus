@@ -14,55 +14,78 @@ export default (tab, config, settings) => {
 
     if (settings.showCountdown) chrome.scripting.executeScript({
         target: { tabId: tab.id }, args: [config, settings], func: async (config, settings) => {
-            if (window.lcxHandler) return;
+            if (window.lcxHandler === true) return;
             window.lcxHandler = true
-
-            var list
-            while (!list) {
-                list = document.querySelector(config.selector.crunchyroll.wlObserveTarget)
-                await new Promise(r => setTimeout(r, 500))
-            }
+            const observerList = []
 
             const updateInts = {}
             const removeInt = (id) => {
                 clearInterval(updateInts[id])
                 delete updateInts[id]
             }
-            const urlObserver = new MutationObserver((m) => { // PWA, looks if link[hreflang].href isnt on /watchlist
-                const changedUrl = m.some(({ addedNodes }) => Array.from(addedNodes).some(e => e.getAttribute('hreflang') !== null && !e.href.endsWith('/watchlist')))
+
+            observe(document.head, (m) => { // PWA, detecting url changes
+                const changedUrl = m.some(({ addedNodes }) => Array.from(addedNodes).some(e => e.getAttribute?.('hreflang') !== null && !e.href?.endsWith('/watchlist')))
                 if (!changedUrl) return;
                 exit()
-            })
-            urlObserver.observe(document.head, { subtree: true, childList: true })
+            }, { subtree: true, childList: true })
 
-            const obs = new MutationObserver(async (m) => {
-                //could optimize this, render addedNodes, clear removedNodes
-                m.forEach(({ removedNodes }) => removedNodes.forEach(r => {
-                    const id = r.querySelector('a[href^="/series/"]').href.match(/\/series\/(\w+)\//)[1]
-                    if (!updateInts[id]) return;
-                    removeInt(id)
-                }))
-                setTimeout(check, 200) // waiting for crunchyroll to render new rows (>50ms) leeway for hardware differences
-            })
-            obs.observe(list, { childList: true })
+            var list
+            const obsList = async (listChange = false) => {
+                let attempt = 0
+                if (listChange) while (!document.querySelector(config.selector.crunchyroll.wlLoader) && attempt++ < 10) await new Promise(r => setTimeout(r, 100))
 
+                while (true) {
+                    list = document.querySelector(config.selector.crunchyroll.wlObserveTarget)
+                    if (document.querySelector(config.selector.crunchyroll.wlNoResults)) return;
+                    if (list) break;
+                    await new Promise(r => setTimeout(r, 100))
+                }
+
+                if (listChange) check()
+
+                return observe(list, async (m) => {
+                    m.forEach(({ removedNodes, addedNodes }) => {
+                        removedNodes.forEach(r => {
+                            for (const elm of r.querySelectorAll('a[href^="/series/"]')) {
+                                const id = elm.href.match(/\/series\/(\w+)\//)[1]
+                                if (updateInts[id] === undefined) return;
+                                removeInt(id)
+                            }
+                        })
+
+                        if (addedNodes.length > 0) setTimeout(() => { // wait for crunchyroll to render new rows
+                            const nodes = Array.from(addedNodes).flatMap(n => n.querySelectorAll('a[href^="/series/"]'))
+                            if (nodes.length > 0) check(nodes[0])
+                        }, 500)
+
+                    })
+                }, { childList: true })
+            }
+            await obsList()
+
+            // observes new list when changing filters
+            observe(document.querySelector(config.selector.crunchyroll.wlFiltersTarget), () => {
+                list = null
+                obsList(true)
+            }, { subtree: true, childList: true, characterData: true })
 
             const { nextEpisode = {} } = await chrome.storage.local.get('nextEpisode')
             var askFor = []
             check()
-            function check() {
-                const anime = list.querySelectorAll('a[href^="/series/"]')
-
+            function check(anime = list.querySelectorAll('a[href^="/series/"]'), ...renderArgs) {
                 for (const a of anime) {
                     const id = a.href.match(/\/series\/(\w+)\//)[1]
-                    if (askFor.includes(id) || nextEpisode[id]?.expires > Date.now()) continue;
+                    if (nextEpisode[id]?.expires > Date.now()) continue;
 
                     if (
-                        nextEpisode[id] === undefined
-                        || (nextEpisode[id]?.airdate && nextEpisode[id].airdate < Date.now())
+                        !askFor.includes(id) && (
+                            nextEpisode[id] === undefined
+                            || (nextEpisode[id]?.airdate && nextEpisode[id].airdate < Date.now())
+                        )
                     ) askFor.push(id)
 
-                    render(a, id)
+                    render(a, id, ...renderArgs)
                 }
             }
 
@@ -92,10 +115,14 @@ export default (tab, config, settings) => {
                 chrome.storage.local.set({ nextEpisode })
             }, 5000);
 
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) for (const id in updateInts) removeInt(id)
+                else check(undefined, true)
+            })
 
             /**@param {Element} anime*/
-            async function render(anime, id = anime.href.match(/\/series\/(\w+)\//)[1]) {
-                if (!anime.isConnected) return;
+            async function render(anime, id = anime.href.match(/\/series\/(\w+)\//)[1], force = false) {
+                if (!anime?.isConnected) return;
                 const old = anime.parentElement.querySelector('.lcx-countdown')
                 const div = old || document.createElement('div')
                 const txt = div.querySelector('h5') || document.createElement('h5')
@@ -104,7 +131,10 @@ export default (tab, config, settings) => {
 
                 if (
                     nextEpisode[id]?.airdate !== undefined
-                    && Number(old?.dataset.ts) !== nextEpisode[id].airdate // if airdate is new
+                    && (
+                        force
+                        || Number(old?.dataset.ts) !== nextEpisode[id].airdate // if airdate is new
+                    )
                 ) {
                     div.dataset.ts = nextEpisode[id].airdate
 
@@ -118,7 +148,8 @@ export default (tab, config, settings) => {
                         else return 3600000
                     }
 
-                    const renderText = (time) => {
+                    const renderCountdown = (time) => {
+                        if (!anime.isConnected) removeInt(id)
                         if (!time) time = parseTime(Math.abs(nextEpisode[id].airdate - Date.now()))
                         if (nextEpisode[id].airdate < Date.now()) {
                             if (time.text) time.text += ' ago'
@@ -128,7 +159,7 @@ export default (tab, config, settings) => {
                         if (time.keys && rateKey !== time.keys.slice(-1)[0]) {
                             rateKey = time.keys.slice(-1)[0]
                             clearInterval(updateInts[id])
-                            updateInts[id] = setInterval(renderText, updateRate());
+                            updateInts[id] = setInterval(renderCountdown, updateRate());
                         }
                         txt.innerText = `${nextEpisode[id].code}: ${time.text || time}`
                     }
@@ -136,31 +167,28 @@ export default (tab, config, settings) => {
                     const rate = updateRate()
                     const nextUpdate = rate - (Date.now() % rate)
 
-                    renderText(time)
+                    renderCountdown(time)
+                    if (updateInts[id] !== undefined) removeInt(id)
                     setTimeout(() => {
-                        renderText()
-                        updateInts[id] = setInterval(renderText, rate);
+                        renderCountdown()
+                        updateInts[id] = setInterval(renderCountdown, rate);
                     }, nextUpdate);
                 }
 
 
-                if (
-                    askFor.includes(id)
-                    && !div.querySelector('.lcx-loading')
-                ) {
-                    if (txt.innerText === '') txt.innerText = `EP:`
+                if (!askFor.includes(id)) div.querySelector('.lcx-loading')?.remove()
+                else if (!div.querySelector('.lcx-loading')) {
                     const loading = document.createElement('div')
                     loading.classList = 'lcx-loading'
                     div.append(loading)
                 }
-                else if (!askFor.includes(id)) div.querySelector('.lcx-loading')?.remove()
 
                 if (nextEpisode[id]?.expires) old?.remove()
                 else anime.parentElement.insertBefore(div, anime.parentElement.lastChild)
             }
 
 
-            function parseTime(ms, maxKeys = 2) {
+            function parseTime(ms, maxKeys = settings.countdownKeys) {
                 const ints = { day: 0, hour: 0, minute: 0, second: Math.round(ms / 1000) }
 
                 if (ints.second >= 60) {
@@ -181,9 +209,10 @@ export default (tab, config, settings) => {
                 var keys = Object.keys(ints).filter(k => ints[k] !== 0 || k === 'second')
                 if (maxKeys > 0) keys = keys.slice(0, maxKeys)
 
+                const shortFormat = settings.countdownFormat === 'short'
                 for (const key of keys) {
                     if (ints[key] === 0 && key !== 'second') continue;
-                    const format = settings.shortCountdown ? key[0] : ` ${key[0].toUpperCase() + key.slice(1)}${ints[key] > 1 ? 's' : ''}`
+                    const format = shortFormat ? key[0] : ` ${key[0].toUpperCase() + key.slice(1)}${ints[key] > 1 ? 's' : ''}`
                     text.push(`${ints[key]}${format}`)
                 }
                 return { text: text.join(' '), keys }
@@ -194,8 +223,18 @@ export default (tab, config, settings) => {
                 delete window.lcxAsk
                 delete window.lcxHandler
                 for (const id in updateInts) removeInt(id)
-                urlObserver.disconnect()
-                obs.disconnect()
+                for (const observer of observerList) observer.disconnect()
+            }
+            /**
+             * @param {Parameters<MutationObserver['observe']>[0]} target
+             * @param {MutationCallback} fn
+             * @param {Parameters<MutationObserver['observe']>[1]} options
+            */
+            function observe(target, fn, options) {
+                const observer = new MutationObserver(fn)
+                observer.observe(target, options)
+                observerList.push(observer)
+                return observer
             }
         }
     })

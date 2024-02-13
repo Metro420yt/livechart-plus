@@ -31,7 +31,7 @@ export default (settings, behindIcon, config) => {
         do { await new Promise((r) => setTimeout(r, 100)) }
         while (anime.querySelector(config.selector.library.epProgress).innerText !== updatedEp)
 
-        behindHandler(anime)
+        behindHandler(anime, true)
     })
     document.addEventListener('epIncrement', async ({ detail: { target } }) => {
         // go out 1 element until the element has an id
@@ -43,40 +43,43 @@ export default (settings, behindIcon, config) => {
         do { await new Promise((r) => setTimeout(r, 100)) }
         while ((originalEp + 1) !== Number(parent.querySelector(config.selector.library.epProgress).innerText))
 
-        behindHandler(parent)
+        behindHandler(parent, true)
     })
 
 
-    function isBehind(anime) {
-        const countdown = anime.querySelector(config.selector.library.countdown)
-        if (settings.filterCountdown !== false && !countdown) return false
+    function isBehind(anime, force = false) {
+        if (!force && anime.dataset.behind) return Number(anime.dataset.behind)
+
+        const hasCountdown = anime.querySelector(config.selector.library.countdown)
+        if (settings.behindCountdown !== false && !hasCountdown) return anime.dataset.behind = 0
 
         var watched = anime.querySelector(config.selector.library.epProgress)?.innerText
-        var nextEp = countdown?.dataset.label.replace(/EP\d/gi, (str) => str.slice(2)) || anime.dataset.userLibraryAnimeEpisodeCount
+        var nextEp = hasCountdown?.dataset.label.replace(/EP\d/gi, (str) => str.slice(2)) || anime.dataset.userLibraryAnimeEpisodeCount
+        const inFilter = settings.behindStatusFilter.includes(anime.dataset.libraryStatus)
 
         if (
-            (!nextEp && !countdown)
-            || anime.querySelector(config.selector.library.hiatus)
-            || nextEp == '1'
-            || (countdown && !settings.behindStatusFilter.includes(anime.dataset.libraryStatus))
-            || (!countdown && anime.dataset.libraryStatus !== 'watching')
-        ) return false
+            anime.querySelector(config.selector.library.hiatus)
+            || (!nextEp || nextEp == '1')
+            || (settings.behindCountdown && !hasCountdown)
+            || !inFilter
+
+        ) return anime.dataset.behind = 0 // not behind
 
         watched = Number(watched)
         nextEp = Number(nextEp.replace(/[^0-9]/g, ''))
         const epBehind = nextEp - watched
 
         if (
-            (countdown && epBehind > 1)
-            || (!countdown && settings.filterCountdown === false)
-        ) return countdown ? epBehind - 1 : epBehind
+            (hasCountdown && epBehind > 1)
+            || (!hasCountdown && settings.behindCountdown === false)
+        ) return anime.dataset.behind = hasCountdown ? epBehind - 1 : epBehind
 
-        return false
+        return anime.dataset.behind = 0
     }
-    function behindHandler(anime) {
-        const behind = isBehind(anime)
+    function behindHandler(anime, force) {
+        const behind = isBehind(anime, force)
         var wrapper = anime.querySelector('#lcx-behind')
-        if (!behind) {
+        if (behind === 0) {
             wrapper?.remove()
             if (button.dataset.toggled === 'true') anime.style.display = 'none'
             return;
@@ -95,14 +98,14 @@ export default (settings, behindIcon, config) => {
             wrapper.appendChild(icon)
         }
 
-        if (settings.showBehindCount) {
-            var count = wrapper.querySelector('p')
-            if (!count && behind > 1) {
-                count = document.createElement('p')
+        if (settings.behindCount) {
+            const old = wrapper.querySelector('p')
+            const count = old || document.createElement('p')
+            if (behind > 1) {
                 count.innerText = behind
-                wrapper.appendChild(count)
+                if (!old) wrapper.appendChild(count)
             }
-            else if (behind === 1) count?.remove()
+            else if (behind === 1) old?.remove()
         }
 
     }

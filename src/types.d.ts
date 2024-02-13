@@ -16,7 +16,8 @@ type Relation = { [key: string]: string }
 interface NavItem {
     text: string
     link: string
-    home?: boolean
+    /**@default false*/
+    footer?: boolean
 }
 interface Settings {
     [key: string]: {
@@ -25,17 +26,23 @@ interface Settings {
 
         description?: string
 
-        default: boolean | string[]
+        default: boolean | string[] | string | number
+
+        /**[min, max]*/
+        range?: [number, number]
 
         /**key to group related settings*/
-        relation?: typeof relationMap[keyof typeof relationMap]
+        relation?: typeof relationMap[keyof typeof relationMap] | string
 
         /**keys of settings to have as dependencies*/
         uses?: Array<keyof typeof settingsMap>
 
         /**creates a dropdown
          * uses #default to determine if it should allow multiple values*/
-        options?: string[]
+        options?: string[] | {
+            /**key: "text"*/
+            [key: string]: string
+        }
     }
 }
 
@@ -43,4 +50,21 @@ interface Settings {
 type importItem = string | {
     tag: keyof HTMLElementTagNameMap
     data?: { [key: string]: any }
+}
+
+
+type Change = string | {
+    text: string
+    setting: string
+} | {
+    title: string
+    changes: Change[]
+}
+
+export interface ChangeLog {
+    [key: string]: {
+        state?: string
+        date?: string
+        changes: Change[]
+    }
 }

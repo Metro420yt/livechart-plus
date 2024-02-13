@@ -18,12 +18,17 @@
 .lcx-loading {
     left: 15px;
     position: relative;
+    animation: lcx-loading 1s infinite linear alternate;
+    animation-delay: 0.5s;
+}
+
+.lcx-loading,
+.lcx-loading::before,
+.lcx-loading::after {
     width: 10px;
     height: 10px;
     border-radius: 5px;
-    color: #9880ff;
-    animation: lcx-loading 1s infinite linear alternate;
-    animation-delay: 0.5s;
+    color: var(--lcx-p);
 }
 
 .lcx-loading::before,
@@ -35,22 +40,14 @@
 }
 
 .lcx-loading::before {
+    animation: inherit;
     left: -15px;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    color: #9880ff;
-    animation: lcx-loading 1s infinite alternate;
     animation-delay: 0s;
 }
 
 .lcx-loading::after {
+    animation: inherit;
     left: 15px;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    color: #9880ff;
-    animation: lcx-loading 1s infinite alternate;
     animation-delay: 1s;
 }
 
@@ -59,8 +56,5 @@
         background-color: var(--lcx-p);
     }
 
-    50%,
-    100% {
-        opacity: .2rem;
-    }
+    50% {}
 }

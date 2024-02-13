@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        :root {
+            --offset: 5px;
+        }
+
+        *[current]>.title::after {
+            content: '< Your Version';
+            font-size: small;
+            color: grey;
+        }
+
+        .title {
+            border-bottom: gray 2px solid;
+        }
+
+        #changelog h2 {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            height: 20px;
+            align-items: center;
+            border-bottom: gray 2px solid;
+        }
+
+        #changelog p {
+            margin: 0;
+        }
+
+        .sub *:not(h4) {
+            left: var(--offset);
+            position: relative;
+        }
+
+        #changelog h4 {
+            margin-top: 3px;
+            margin-bottom: 5px;
+            border-bottom: gray 2px solid;
+        }
+
+        #changelog a::after {
+            content: url('/assets/external.svg');
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+        }
+    </style>
+
+    <script type="module" src="/global/import.js"></script>
+</head>
+
+
+<body>
+    <div id="changelog"></div>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 export default async (config, relative, user) => {
     if (user.httpStatus !== 200) return;
 
-    const target = document.querySelector('[data-controller="page-preferences"]>div')
+    const target = document.querySelector(config.selector.library.updatedTimeParent)
     target.classList.remove('flex')
 
     var timestamp = Date.parse(user.updated_at)

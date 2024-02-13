@@ -1,5 +1,5 @@
 export default (config) => {
-    document.addEventListener('keypress', (event) => {
+    document.addEventListener('keydown', (event) => {
         if (event.code === 'Escape') {
             if (event.target.tagName === 'TEXTAREA') return event.target.blur();
 

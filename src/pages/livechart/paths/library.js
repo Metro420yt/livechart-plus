@@ -32,11 +32,11 @@ export default async function ({ settings, tab, query }) {
 
     const execute = (scr, func, args) => { if (scr === undefined || settings[scr]) chrome.scripting.executeScript({ target: { tabId: tab.id }, func, args }) }
 
-    execute('scr:behind', showBehindFn, [settings, chrome.runtime.getURL('assets/behind.png'), config])
-    execute('scr:pendingRls', pendingFn, [config])
-    execute('scr:bufferStatus', bufferStatusFn, [config])
+    execute('behind', showBehindFn, [settings, chrome.runtime.getURL('assets/behind.png'), config])
+    execute('pendingRls', pendingFn, [config])
+    execute('bufferStatus', bufferStatusFn, [config])
 
-    if (settings['scr:updatedTime'] && list) {
+    if (settings.updatedTime && list) {
         const user = await request(`https://www.livechart.me/api/v1/users/${list?.isViewer ? list.ownerName : tab.url.match(/users\/(\w+)\/library/)[1]}`, undefined, { ttl: { minute: 5 } })
         const relative = parseTime(Date.now() - Date.parse(user.updated_at), true, 1)
         execute(undefined, updatedTimeFn, [config, relative, user])

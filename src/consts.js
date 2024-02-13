@@ -2,53 +2,48 @@
 
 /**@type {import("./types.d.ts").Settings}*/
 export const settingsMap = {
-    // list
+    // livechart
     overwriteUrl: {
         title: 'Overwrite Library URL',
         description: 'Overwrite any links going to a library',
         default: true,
         relation: 'livechart',
     },
+    betterDropdowns: {
+        title: 'Better Dropdowns',
+        description: 'Improved dropdowns for keyboard movement',
+        default: true,
+        relation: 'livechart',
+    },
+    recentSearches: {
+        title: 'Save Recent Searches',
+        default: true,
+        relation: 'livechart',
+    },
+    keybinds: {
+        title: 'Livechart Keybinds',
+        description: 'Listen for keybound actions',
+        default: true,
+    },
 
-    // crunchyroll
-    hideWatched: {
-        title: 'Auto-Hide Watched',
-        description: 'Hide any watched episodes by default',
-        default: false,
-        relation: 'crunchyroll',
-    },
-    showCountdown: {
-        title: 'Show Countdowns',
-        description: 'Show countdowns for airing anime',
+    //library
+    pendingRls: {
+        title: 'Pending Releases',
+        description: 'Show anime that have an upcoming first episode',
         default: true,
-        relation: 'crunchyroll',
+        relation: 'library',
     },
-    shortCountdown: {
-        title: 'Shorten Countdown Format',
-        description: 'Shorten countdown from day/hour/minute/second to d/h/m/s',
-        default: false,
-        relation: 'crunchyroll',
-        uses: ['showCountdown']
-    },
-    // behind
-    filterCountdown: {
-        title: 'Only show airing',
-        description: 'Only show anime that have an upcoming episode',
-        default: false,
-        relation: 'behind',
-    },
-    showBehindCount: {
-        title: 'Show behind count',
-        description: 'Show how many episodes youre behind ontop of the icon',
+    bufferStatus: {
+        title: 'Buffer Status Updates',
+        description: 'Wait to toggle status filters when holding ctrl to reduce loading',
         default: true,
-        relation: 'behind',
+        relation: 'library',
     },
-    behindStatusFilter: {
-        title: 'Status Filters',
-        description: 'Select which status\'s to be considered behind',
-        default: ['watching', 'considering', 'planning'],
-        options: ["completed", "rewatching", "watching", "planning", "considering", "paused", "dropped", "skipping"],
-        relation: 'behind',
+    updatedTime: {
+        title: 'Updated Timestamp',
+        description: 'Shows when a library was last updated',
+        default: true,
+        relation: 'library',
     },
 
     // recent lists
@@ -62,62 +57,84 @@ export const settingsMap = {
         title: 'Show Recent Libraries',
         default: true,
         relation: 'recentLists',
-        uses: ['saveRecentLists']
     },
 
-    // recents
-    recentSearches: {
-        title: 'Save Recent Searches',
-        default: true,
-        relation: 'livechart',
+    // crunchyroll
+    hideWatched: {
+        title: 'Auto-Hide Watched',
+        description: 'Hide any watched episodes by default',
+        default: false,
+        relation: 'crunchyroll',
     },
 
-    //scripts
-    'scr:keybinds': {
-        title: 'Keybinds',
-        description: 'Listen for keybound actions',
+
+    showCountdown: {
+        title: 'Show Countdowns',
+        description: 'Show countdowns for airing anime',
         default: true,
-        relation: 'script',
+        relation: 'countdown',
     },
-    'scr:behind': {
-        title: 'Behind',
+    countdownKeys: {
+        title: 'Key Limit',
+        description: 'How many keys (day, hour, etc.) to show',
+        default: 2,
+        range: [1, 4],
+        uses: ['showCountdown'],
+        relation: 'countdown',
+    },
+    countdownFormat: {
+        title: 'Format',
+        description: 'Shorten countdown from day/hour/minute/second to d/h/m/s',
+        default: 'short',
+        options: {
+            long: 'day/hour/minute/second',
+            short: 'd/h/m/s',
+        },
+        uses: ['showCountdown'],
+        relation: 'countdown',
+    },
+
+
+    // behind
+    behind: {
+        title: 'Show Behind',
         description: 'Calculate what shows youre behind on',
         default: true,
-        relation: 'script',
+        relation: 'behind',
     },
-    'scr:pendingRls': {
-        title: 'Pending Releases',
-        description: 'Only show anime that have a release (countdown)',
-        default: true,
-        relation: 'script',
+    behindCountdown: {
+        title: 'Only count airing',
+        description: 'Only count anime that have are airing',
+        default: false,
+        relation: 'behind',
+        uses: ['behind']
     },
-    'scr:bufferStatus': {
-        title: 'Buffer Status Updates',
-        description: 'Wait to toggle status filters when holding ctrl to reduce loading',
+    behindCount: {
+        title: 'Show count',
+        description: 'Show how many episodes youre behind ontop of the icon',
         default: true,
-        relation: 'script',
+        relation: 'behind',
+        uses: ['behind']
     },
-    'scr:betterDropdowns': {
-        title: 'Better Dropdowns',
-        description: 'Improved dropdowns for keyboard movement',
-        default: true,
-        relation: 'script',
-    },
-    'scr:updatedTime': {
-        title: 'Library Updated Time',
-        description: 'Shows when a library last updated',
-        default: true,
-        relation: 'script',
+    behindStatusFilter: {
+        title: 'Status Filters',
+        description: 'Select which status\'s to be considered behind',
+        default: ['watching', 'considering', 'planning'],
+        options: ["completed", "rewatching", "watching", "planning", "considering", "paused", "dropped", "skipping"],
+        relation: 'behind',
+        uses: ['behind']
     },
 }
 
 /**@type {import("./types.d.ts").Relation}*/
 export const relationMap = {
+    notifications: 'Notifications',
+    library: 'Library',
     crunchyroll: 'Crunchyroll',
     behind: 'Behind',
     recentLists: 'Recent Lists',
     livechart: 'Livechart.me',
-    script: 'Scripts',
+    countdown: 'Countdowns'
 }
 
 /**@type {import("./types.d.ts").NavItem[]}*/
@@ -129,6 +146,11 @@ export const navData = [
     {
         text: 'Settings',
         link: '../settings/popup.html'
+    },
+    {
+        text: 'Changelog',
+        link: '../changelog/popup.html',
+        footer: true
     },
 ]
 export const defaultPopup = chrome.runtime.getManifest().action.default_popup
