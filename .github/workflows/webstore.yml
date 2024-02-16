@@ -2,14 +2,14 @@ name: Webstore Publish
 
 on:
   push:
-    branches: 
-      master
     tags:
       - v*
 
 jobs:
   zip:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    
     steps:
       - uses: actions/checkout@v4
       - uses: vimtor/action-zip@v1.2
@@ -23,6 +23,7 @@ jobs:
   publish:
     name: Publish webextension
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
 
     steps:
     - uses: actions/checkout@v4
