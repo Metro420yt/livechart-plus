@@ -1,9 +1,14 @@
 name: Webstore Publish
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+    - master
+    paths:
+    - src
     tags:
-      - v*
+    - v**
 
 jobs:
   zip:
