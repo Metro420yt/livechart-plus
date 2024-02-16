@@ -54,12 +54,12 @@ export default (settings, behindIcon, config) => {
         if (settings.behindCountdown !== false && !hasCountdown) return anime.dataset.behind = 0
 
         var watched = anime.querySelector(config.selector.library.epProgress)?.innerText
-        var nextEp = hasCountdown?.dataset.label.replace(/EP\d/gi, (str) => str.slice(2)) || anime.dataset.userLibraryAnimeEpisodeCount
+        var nextEp = anime.querySelector(config.selector.library.nextEp)?.innerText.match(/EP(\d+)/i)?.[1] || anime.dataset.userLibraryAnimeEpisodeCount
         const inFilter = settings.behindStatusFilter.includes(anime.dataset.libraryStatus)
 
         if (
             anime.querySelector(config.selector.library.hiatus)
-            || (!nextEp || nextEp == '1')
+            || (!nextEp || nextEp === '1')
             || (settings.behindCountdown && !hasCountdown)
             || !inFilter
 

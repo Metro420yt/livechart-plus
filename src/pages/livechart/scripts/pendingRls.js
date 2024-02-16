@@ -20,7 +20,9 @@ export default (config) => {
             target.dataset.toggled = true
             for (const anime of animes) {
                 const countdown = anime.querySelector(config.selector.library.countdown)
-                if (['EP1', 'THTR'].includes(countdown?.dataset.label)) anime.style.display = ''
+                const nextEp = anime.querySelector(config.selector.library.nextEp)
+
+                if (countdown && nextEp.innerText?.match(/^(EP1|THTR) /)) anime.style.display = ''
                 else anime.style.display = 'none'
             }
         }

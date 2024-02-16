@@ -82,20 +82,17 @@ function parseChanges(changes, parent) {
 
         var link
         if (typeof item.link === 'string') link = item.link
+        else if (item.setting) link = '/pages/settings/popup.html#' + item.setting
 
-        const e = document.createElement(link ? 'a' : 'p')
-        e.innerText = str
+        const text = document.createElement('p')
+        text.innerText = str
 
-        if (item.setting) {
-            // const external = document.createElement('div')
-            // external.innerText = 'L'
-            // external.onclick = () => document.location = '/pages/settings/popup.html#' + item.setting
-
+        if (link) {
             const external = document.createElement('a')
-            // external.src = '/assets/external.svg'
-            external.href = '/pages/settings/popup.html#' + item.setting
-            e.appendChild(external)
+            if (!link.startsWith('http')) external.href = '/pages/settings/popup.html#' + item.setting
+            else external.onclick = () => chrome.tabs.create({ url: link, active: true })
+            text.appendChild(external)
         }
-        parent.appendChild(e)
+        parent.appendChild(text)
     }
 }

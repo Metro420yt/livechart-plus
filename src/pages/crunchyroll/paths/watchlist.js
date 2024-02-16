@@ -24,12 +24,6 @@ export default (tab, config, settings) => {
                 delete updateInts[id]
             }
 
-            observe(document.head, (m) => { // PWA, detecting url changes
-                const changedUrl = m.some(({ addedNodes }) => Array.from(addedNodes).some(e => e.getAttribute?.('hreflang') !== null && !e.href?.endsWith('/watchlist')))
-                if (!changedUrl) return;
-                exit()
-            }, { subtree: true, childList: true })
-
             var list
             const obsList = async (listChange = false) => {
                 let attempt = 0
@@ -63,6 +57,12 @@ export default (tab, config, settings) => {
                 }, { childList: true })
             }
             await obsList()
+
+            observe(document.head, (m) => { // PWA, detecting url changes
+                const changedUrl = m.some(({ addedNodes }) => Array.from(addedNodes).some(e => e.getAttribute?.('hreflang') !== null && !e.href?.endsWith('/watchlist')))
+                if (!changedUrl) return;
+                exit()
+            }, { subtree: true, childList: true })
 
             // observes new list when changing filters
             observe(document.querySelector(config.selector.crunchyroll.wlFiltersTarget), () => {

@@ -23,7 +23,7 @@ const pages = [
 /**@type {import('./types.d.ts').Alarm}*/
 const alarms = {
     updateConfig: {
-        periodInMinutes: 30,
+        periodInMinutes: 60,
         fn: updateConfig,
     }
 }
