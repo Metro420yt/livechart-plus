@@ -52,7 +52,6 @@ export default (config) => {
             if (!openChildren) openChildren = Array.from(getItems())
 
             const last = openChildren.slice(-1)[0]
-            console.log(e.target, lastOn, last)
             if (lastOn === last && !e.shiftKey) {
                 openChildren[0].focus()
                 lastOn = undefined

@@ -81,10 +81,8 @@ function parseChanges(changes, parent) {
                 const key = args[0].split(':')[1] || item.setting
 
                 const map = settingsMap[key]
-                if (!map) {
-                    console.warn(`${key} not found in settingsMap`, item)
-                    return 'Unknown Setting'
-                }
+                if (!map) return 'Unknown Setting'
+
                 return map ? map[args[1] || 'title'] : ''
             }
         })

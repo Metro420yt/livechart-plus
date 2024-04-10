@@ -66,10 +66,8 @@ for (const element of settingsTags) {
             if (value) {
                 if (attr === 'relations') value = value.split(' ').map(v => {
                     v = v.replace(/_/g, ' ')
-                    if (!groups[v]) {
-                        console.warn(`group: ${v}, doesnt exist`)
-                        return [];
-                    }
+                    if (!groups[v]) return [];
+
                     return Object.keys(groups[v])
                 }).flat()
                 else value = value.split(' ')
