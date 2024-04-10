@@ -4,7 +4,7 @@ export default async function (tab) {
     const { config } = await chrome.storage.local.get('config')
     if (/\/search\?/.test(tab.url)) {
         const data = {}
-        data.query = tab.url.split('?')[1].split('&').find(q => q.startsWith('q=')).slice(2)
+        data.query = tab.url.match(/q=([\w+]{1,})/)[1]
         data.text = await script(tab.id, config.selector.search.input, (selector) => document.querySelector(selector).value)
 
 

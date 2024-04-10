@@ -19,31 +19,43 @@ interface NavItem {
     /**@default false*/
     footer?: boolean
 }
-interface Settings {
-    [key: string]: {
-        /**uses key if undefined*/
-        title?: string
+type Settings = {
+    [key: string]: BaseSettings | StringSettings | NumberSettings
+}
+interface BaseSettings {
+    /**uses key if undefined*/
+    title?: string
 
-        description?: string
+    description?: string
 
-        default: boolean | string[] | string | number
+    default: boolean
 
-        /**[min, max]*/
-        range?: [number, number]
+    /**key to group related settings*/
+    relation?: typeof relationMap[keyof typeof relationMap] | string
 
-        /**key to group related settings*/
-        relation?: typeof relationMap[keyof typeof relationMap] | string
+    /**keys of settings to have as dependencies*/
+    uses?: Array<keyof typeof settingsMap>
 
-        /**keys of settings to have as dependencies*/
-        uses?: Array<keyof typeof settingsMap>
+    /**if this setting should be show in the settings popout
+     * @default true*/
+    popout?: boolean
 
-        /**creates a dropdown
-         * uses #default to determine if it should allow multiple values*/
-        options?: string[] | {
-            /**key: "text"*/
-            [key: string]: string
-        }
+}
+interface StringSettings extends BaseSettings {
+    default: string | string[]
+
+    /**creates a dropdown
+     * uses #default to determine if it should allow multiple values*/
+    options?: string[] | {
+        /**key: "text"*/
+        [key: string]: string
     }
+}
+interface NumberSettings extends BaseSettings {
+    default: number
+
+    /**[min, max]*/
+    range?: [number, number]
 }
 
 

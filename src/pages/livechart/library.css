@@ -1,22 +1,23 @@
 :root {
     --lcx-behind-size: 1rem;
     --lcx-behind-pos: -.6rem;
-}
-
-
-form[data-controller="anime-release-filter"] [id^="lcx-"].btn {
-    background-color: #121212;
-    width: fit-content;
+    --lcx-behind-bg: rgb(31, 31, 31);
 }
 
 #lcx-behind {
-    height: inherit;
-    position: relative;
     user-select: none;
+    position: absolute;
+    color: hsl(var(--bc)/.75);
+    font-size: .875rem;
+
+    /*fallback*/
+    top: 35%;
+    right: .5rem;
 }
 
 #lcx-behind>img {
-    height: inherit;
+    height: 1.6rem;
+    width: 1.6rem;
 }
 
 #lcx-behind>p {

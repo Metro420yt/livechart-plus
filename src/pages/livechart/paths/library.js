@@ -1,5 +1,5 @@
 import request from '../../../api/request.js';
-import { parseTime, script } from '../../../functions.js';
+import { ScriptHandler, parseTime, script } from '../../../functions.js';
 
 import bufferStatusFn from '../scripts/bufferStatuses.js';
 import pendingFn from '../scripts/pendingRls.js';
@@ -30,16 +30,16 @@ export default async function ({ settings, tab, query }) {
         chrome.scripting.executeScript({ target: { tabId: tab.id }, func: recentListsFn, args: [recentLists || [], (query && settings.overwriteUrl) ? query : '', config] })
     }
 
-    const execute = (scr, func, args) => { if (scr === undefined || settings[scr]) chrome.scripting.executeScript({ target: { tabId: tab.id }, func, args }) }
+    const exec = ScriptHandler(tab.id, settings)
 
-    execute('behind', showBehindFn, [settings, chrome.runtime.getURL('assets/behind.png'), config])
-    execute('pendingRls', pendingFn, [config])
-    execute('bufferStatus', bufferStatusFn, [config])
+    exec('behind', showBehindFn, [settings, chrome.runtime.getURL('assets/behind.png'), config])
+    exec('pendingRls', pendingFn, [config])
+    exec('bufferStatus', bufferStatusFn, [config])
 
     if (settings.updatedTime && list) {
         const user = await request(`https://www.livechart.me/api/v1/users/${list?.isViewer ? list.ownerName : tab.url.match(/users\/(\w+)\/library/)[1]}`, undefined, { ttl: { minute: 5 } })
         const relative = parseTime(Date.now() - Date.parse(user.updated_at), true, 1)
-        execute(undefined, updatedTimeFn, [config, relative, user])
+        exec(undefined, updatedTimeFn, [config, relative, user])
     }
 }
 

@@ -9,14 +9,19 @@ export const settingsMap = {
         default: true,
         relation: 'livechart',
     },
-    betterDropdowns: {
-        title: 'Better Dropdowns',
-        description: 'Improved dropdowns for keyboard movement',
-        default: true,
+    smallActionButtons: {
+        title: 'Small Watch Buttons',
+        default: false,
         relation: 'livechart',
     },
     recentSearches: {
         title: 'Save Recent Searches',
+        default: true,
+        relation: 'livechart',
+    },
+    betterDropdowns: {
+        title: 'Better Dropdowns',
+        description: 'Improved dropdowns for keyboard movement',
         default: true,
         relation: 'livechart',
     },

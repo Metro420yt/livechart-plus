@@ -111,7 +111,10 @@ export default (tab, config, settings) => {
                 })
                 askFor = []
 
-                Object.keys(nextEpisode).slice(100).forEach(k => delete nextEpisode[k])
+                Object.keys(nextEpisode)
+                    .filter(k => nextEpisode[k].expires < Date.now())
+                    .slice(100)
+                    .forEach(k => delete nextEpisode[k])
                 chrome.storage.local.set({ nextEpisode })
             }, 5000);
 

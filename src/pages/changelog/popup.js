@@ -5,15 +5,15 @@ var cache = localStorage.getItem('changelog')
 const currVersion = chrome.runtime.getManifest().version
 
 /**@type {import('../../types.d.ts').ChangeLog}*/
-var { data: changelog, lastVer } = JSON.parse(cache) || {}
+var { data: changelog, lastVer, expires } = JSON.parse(cache) || {}
 if (
     !cache
     || currVersion !== lastVer
-    || (changelog.expires < Date.now())
+    || (expires < Date.now())
 ) {
     changelog = await request('https://livechart.yuji.app/changelog')
     localStorage.setItem('changelog', JSON.stringify({
-        expires: Date.now() + 8.64e+7, //1 day
+        expires: Date.now() + (3.6e+6), //hr
         lastVer: currVersion,
         data: changelog
     }))
@@ -42,10 +42,14 @@ for (const v in changelog) {
 
     if (currVersion === v) {
         div.setAttribute('current', '')
-        div.animate([
-            { backgroundColor: 'rgba(255, 255, 134, 0.297)', easing: 'cubic-bezier(0.5, 0, 0.75, 0)' },
-            { backgroundColor: '' }
-        ], 1500)
+
+        setTimeout(() => {
+            window.scrollTo({ behavior: 'smooth', top: div.getBoundingClientRect().top - 100 })
+            div.animate([
+                { backgroundColor: 'rgba(255, 255, 134, 0.297)', easing: 'cubic-bezier(0.5, 0, 0.75, 0)' },
+                { backgroundColor: '' }
+            ], 2000)
+        }, 50);
     }
     parseChanges(item.changes, div)
 }
@@ -53,46 +57,50 @@ for (const v in changelog) {
 /**@param {import('../../types.d.ts').Change[]} changes*/
 function parseChanges(changes, parent) {
     for (const item of changes) {
+        let elm
         if (item.title) {
             const sub = document.createElement('div')
             sub.classList.add('sub')
-
-            const t = document.createElement('h4')
-            t.innerText = item.title
-            t.classList.add('title')
-
-            sub.appendChild(t)
             parent.appendChild(sub)
 
-            parseChanges(item.changes, sub)
-            continue;
-        }
+            elm = document.createElement('h4')
+            str = item.title
+            elm.classList.add('title')
+            sub.appendChild(elm)
 
-        var str = item.text || item
+            parseChanges(item.changes, sub)
+        }
+        else {
+            var str = item.text || item
+            elm = document.createElement('p')
+            parent.appendChild(elm)
+        }
         str = str.replace(/\{(.*)\}/, (r, s) => {
             const args = s.split('.')
             if (args[0].startsWith('setting')) {
                 const key = args[0].split(':')[1] || item.setting
 
                 const map = settingsMap[key]
-                if (!map) console.warn(`${key} not found in settingsMap`, item)
+                if (!map) {
+                    console.warn(`${key} not found in settingsMap`, item)
+                    return 'Unknown Setting'
+                }
                 return map ? map[args[1] || 'title'] : ''
             }
         })
+        elm.innerText = str
 
-        var link
+        let link = item.url
         if (typeof item.link === 'string') link = item.link
         else if (item.setting) link = '/pages/settings/popup.html#' + item.setting
 
-        const text = document.createElement('p')
-        text.innerText = str
-
         if (link) {
             const external = document.createElement('a')
+
             if (!link.startsWith('http')) external.href = '/pages/settings/popup.html#' + item.setting
             else external.onclick = () => chrome.tabs.create({ url: link, active: true })
-            text.appendChild(external)
+
+            elm.appendChild(external)
         }
-        parent.appendChild(text)
     }
 }

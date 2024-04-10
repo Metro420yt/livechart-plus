@@ -1,6 +1,6 @@
 import request from './api/request.js';
-import { defaultPopup } from './consts.js';
-import { setPopup } from './functions.js';
+import { defaultPopup, settingsMap } from './consts.js';
+import { getSettings, setPopup } from './functions.js';
 
 import crunchyrollBg from './pages/crunchyroll/background.js';
 import livechartBg from './pages/livechart/background.js';
@@ -30,6 +30,13 @@ const alarms = {
 
 
 async function startup() {
+    const settings = await getSettings()
+    for (const key in settings) {
+        if (key in settingsMap) continue;
+        delete settings[key]
+    }
+    chrome.storage.sync.set({ settings })
+
     const { lastStartup } = await chrome.storage.local.get('lastStartup')
     if (
         lastStartup

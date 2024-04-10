@@ -14,3 +14,12 @@
 .lcx-link:hover {
     text-decoration: underline var(--lcx-p);
 }
+
+
+.lcx-foucsBg-light:focus {
+    color: #3b97fc;
+}
+
+.lcx-foucsBg:focus {
+    color: #95ccff;
+}

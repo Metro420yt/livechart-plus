@@ -1,4 +1,4 @@
-import { getSettings, script } from "../../functions.js";
+import { ScriptHandler, getSettings, script } from "../../functions.js";
 
 import library from "./paths/library.js";
 import search from "./paths/search.js";
@@ -7,19 +7,21 @@ import betterDropdownFn from './scripts/betterDropdowns.js';
 import eventsFn from './scripts/events.js';
 import keybindsFn from './scripts/keybinds.js';
 import patchFn from './scripts/patch.js';
+import smallActionFn from './scripts/smallActions.js';
 
 
 export default async (tab, config) => {
     const settings = await getSettings()
     const query = await getQuery()
 
-    const execute = (scr, func, args) => { if (scr === undefined || settings[scr]) chrome.scripting.executeScript({ target: { tabId: tab.id }, func, args }) }
+    const exec = ScriptHandler(tab.id, settings)
 
     await script(tab.id, eventsFn, config)
-    if (query) execute('overwriteUrl', changeLinks, [query, config.selector.username])
-    execute('scr:keybinds', keybindsFn, [config])
-    execute('scr:betterDropdowns', betterDropdownFn, [config])
-    execute(undefined, patchFn, [config])
+    if (query) exec('overwriteUrl', changeLinks, [query, config.selector.username])
+    exec('smallActionButtons', smallActionFn, [config])
+    exec('keybinds', keybindsFn, [config])
+    exec('betterDropdowns', betterDropdownFn, [config])
+    exec(undefined, patchFn, [config])
 
     if (/\/users\/.*\/library/.test(tab.url)) library({ tab, query, settings })
     else if (settings.recentSearches && /\/search/.test(tab.url)) search(tab)

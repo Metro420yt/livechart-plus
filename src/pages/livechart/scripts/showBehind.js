@@ -38,28 +38,32 @@ export default (settings, behindIcon, config) => {
         var parent = target.parentElement
         while (!parent.dataset.userLibraryAnimeId && parent.tagName !== 'BODY') parent = parent.parentElement
 
-        // wait for the original episode number to increase by 1
-        const originalEp = Number(parent.querySelector(config.selector.library.epProgress).innerText)
-        do { await new Promise((r) => setTimeout(r, 100)) }
-        while ((originalEp + 1) !== Number(parent.querySelector(config.selector.library.epProgress).innerText))
-
-        behindHandler(parent, true)
+        // wait for the original episode number to increase
+        const observ = new MutationObserver(() => {
+            behindHandler(parent, true)
+            observ.disconnect()
+        })
+        observ.observe(parent.querySelector(config.selector.library.epProgress), { childList: true, attributes: true, subtree: true, characterData: true })
     })
 
 
-    function isBehind(anime, force = false) {
+    function isBehind(anime, force = false, watched) {
         if (!force && anime.dataset.behind) return Number(anime.dataset.behind)
 
         const hasCountdown = anime.querySelector(config.selector.library.countdown)
-        if (settings.behindCountdown !== false && !hasCountdown) return anime.dataset.behind = 0
+        if (
+            (settings.behindCountdown !== false && !hasCountdown)
+            || anime.querySelector(config.selector.library.format)?.innerText.match(/tba/i)
+            || anime.querySelector(config.selector.library.countdownParent)?.innerText.match(/tbd/i)
+        ) return anime.dataset.behind = 0
 
-        var watched = anime.querySelector(config.selector.library.epProgress)?.innerText
+        if (watched === undefined) watched = anime.querySelector(config.selector.library.epProgress)?.innerText
         var nextEp = anime.querySelector(config.selector.library.nextEp)?.innerText.match(/EP(\d+)/i)?.[1] || anime.dataset.userLibraryAnimeEpisodeCount
         const inFilter = settings.behindStatusFilter.includes(anime.dataset.libraryStatus)
 
         if (
             anime.querySelector(config.selector.library.hiatus)
-            || (!nextEp || nextEp === '1')
+            || nextEp === undefined
             || (settings.behindCountdown && !hasCountdown)
             || !inFilter
 
@@ -77,20 +81,22 @@ export default (settings, behindIcon, config) => {
         return anime.dataset.behind = 0
     }
     function behindHandler(anime, force) {
-        const behind = isBehind(anime, force)
+        const behindCount = isBehind(anime, force)
         var wrapper = anime.querySelector('#lcx-behind')
-        if (behind === 0) {
+        if (behindCount === 0) {
             wrapper?.remove()
             if (button.dataset.toggled === 'true') anime.style.display = 'none'
             return;
         }
 
+        const layout = document.querySelector('[data-controller="anime-release-filter"] [name="layout"]').value
+
         if (!wrapper) {
             wrapper = document.createElement('div')
             wrapper.id = 'lcx-behind'
-            anime.querySelector(config.selector.library.behindIconParent).prepend(wrapper)
+            anime.appendChild(wrapper)
         }
-        wrapper.title = `${behind} Unwatched Episode${behind > 1 ? 's' : ''}`
+        wrapper.title = `${behindCount} Unwatched Episode${behindCount > 1 ? 's' : ''}`
 
         if (!wrapper.querySelector('img')) {
             const icon = document.createElement('img')
@@ -101,12 +107,26 @@ export default (settings, behindIcon, config) => {
         if (settings.behindCount) {
             const old = wrapper.querySelector('p')
             const count = old || document.createElement('p')
-            if (behind > 1) {
-                count.innerText = behind
+            if (behindCount > 1) {
+                count.innerText = behindCount
                 if (!old) wrapper.appendChild(count)
             }
-            else if (behind === 1) old?.remove()
+            else if (behindCount === 1) old?.remove()
         }
 
+
+        if (layout === 'compact') {
+            var offset = 80
+            if (!anime.querySelector('.leading-none.text-sm')) offset -= 38
+            wrapper.style.top = offset + 'px'
+
+            wrapper.style.right = '4.1px'
+            wrapper.style.backgroundColor = 'var(--lcx-behind-bg)'
+            wrapper.style.borderRadius = '8px'
+            wrapper.style.border = '0.2rem solid var(--lcx-behind-bg)'
+        }
+        else {
+            wrapper.style.right = '11px'
+        }
     }
 }

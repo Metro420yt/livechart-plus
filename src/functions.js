@@ -70,6 +70,7 @@ export function script(tabId, ...args) {
             if (Array.isArray(a)) scriptArgs.push(...a)
             else scriptArgs.push(a)
         })
+
         chrome.scripting.executeScript({
             target: { tabId }, func, args: scriptArgs
         }, ([{ result }]) => resolve(result))
@@ -121,4 +122,11 @@ export function formatTime(data, type = 'second') {
     for (const key in data) time += (timeMap[key] || 0) * data[key]
 
     return time
+}
+
+export function ScriptHandler(tabId, settings) {
+    return (key, func, args) => {
+        if (key === undefined || settings?.[key]) chrome.scripting.executeScript({ target: { tabId }, func, args })
+        else if (key !== undefined && settings?.[key] === undefined) console.warn('script setting doesnt exist: ' + key)
+    }
 }
