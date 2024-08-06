@@ -12,6 +12,7 @@ export default (settings, behindIcon, config) => {
     button.onclick = async ({ target }) => {
         for (const btn of document.querySelectorAll(`[id^="lcx-btn-"][data-toggled="true"]:not(#${button.id})`)) btn.click()
 
+
         if (target.dataset.toggled === 'true') {
             target.dataset.toggled = false
             for (const a of animes) a.style.display = ''
@@ -58,7 +59,11 @@ export default (settings, behindIcon, config) => {
         ) return anime.dataset.behind = 0
 
         if (watched === undefined) watched = anime.querySelector(config.selector.library.epProgress)?.innerText
-        var nextEp = anime.querySelector(config.selector.library.nextEp)?.innerText.match(/EP(\d+)/i)?.[1] || anime.dataset.userLibraryAnimeEpisodeCount
+        var nextEp = anime.querySelector(config.selector.library.nextEp)?.innerText.match(/EP(\d+)/i)?.[1]
+        if (!nextEp) {
+            nextEp = anime.dataset.userLibraryAnimeEpisodeCount
+            var isReleased = true
+        }
         const inFilter = settings.behindStatusFilter.includes(anime.dataset.libraryStatus)
 
         if (
@@ -73,10 +78,11 @@ export default (settings, behindIcon, config) => {
         nextEp = Number(nextEp.replace(/[^0-9]/g, ''))
         const epBehind = nextEp - watched
 
+        const dateTime = anime.querySelector(config.selector.library.dateTime)
         if (
-            (hasCountdown && epBehind > 1)
+            ((hasCountdown || dateTime) && epBehind > 1)
             || (!hasCountdown && settings.behindCountdown === false)
-        ) return anime.dataset.behind = hasCountdown ? epBehind - 1 : epBehind
+        ) return anime.dataset.behind = ((hasCountdown || dateTime) && !isReleased ? epBehind - 1 : epBehind)
 
         return anime.dataset.behind = 0
     }
@@ -105,10 +111,10 @@ export default (settings, behindIcon, config) => {
         }
 
         if (settings.behindCount) {
-            const old = wrapper.querySelector('p')
-            const count = old || document.createElement('p')
+            const old = wrapper.querySelector('div')
+            const count = old || document.createElement('div')
             if (behindCount > 1) {
-                count.innerText = behindCount
+                count.innerHTML = `<span>${behindCount}</span>`
                 if (!old) wrapper.appendChild(count)
             }
             else if (behindCount === 1) old?.remove()

@@ -5,7 +5,10 @@ export default async (toggle = false, config) => {
     hideWatched.innerText = `${toggle ? 'Show' : 'Hide'} Watched`
     hideWatched.id = 'lcx-toggleWatched'
     hideWatched.dataset.toggled = toggle
-    document.querySelector(config.selector.crunchyroll.hideWatchedParent).appendChild(hideWatched)
+
+    const parent = document.querySelector(config.selector.crunchyroll.hideWatchedParent)
+    if (!parent) console.warn('#hideWatchedParent not found')
+    parent.appendChild(hideWatched)
 
     // fades out buutton after timeout
     var int

@@ -11,12 +11,12 @@ const pages = [
     {
         background: livechartBg,
         popup: './pages/livechart/popup.html',
-        regex: /livechart.me\//,
+        host: /.*.?livechart.me/
     },
     {
         background: crunchyrollBg,
         popup: './pages/crunchyroll/popup.html',
-        regex: /crunchyroll.com\//,
+        host: /.*.?crunchyroll.com/,
     },
 ]
 
@@ -38,10 +38,7 @@ async function startup() {
     chrome.storage.sync.set({ settings })
 
     const { lastStartup } = await chrome.storage.local.get('lastStartup')
-    if (
-        lastStartup
-        && Date.now() < (lastStartup + 60000)
-    ) return; // if last startup is < 1min ago, return
+    if (Date.now() < ((lastStartup || 0) + 60000)) return; // if last startup is < 1min ago, return
     await chrome.storage.local.set({ lastStartup: Date.now() })
 
     const config = await updateConfig()
@@ -49,11 +46,10 @@ async function startup() {
 }
 
 async function updateConfig() {
-    const { version } = chrome.runtime.getManifest()
-    var config = await request(`https://livechart.yuji.app/config/${version}`)
+    var config = await request(`https://livechart.yuji.app/config`)
     if (config.httpStatus !== 200) {
-        console.warn('unable to update config')
-        return (await chrome.storage.local.get('config')).config
+        console.warn(`[Config] unable to update ${config.httpStatus}`)
+        return storage.getLocal('config')
     }
     chrome.storage.local.set({ config })
     return config
@@ -66,7 +62,10 @@ chrome.tabs.onUpdated.addListener(async (...args) => {
     const tab = args[2]
     if (tab.status !== 'complete') return;
 
-    const page = pages.find(p => p.regex.test(tab.url))
+    const page = pages.find(p => {
+        if (p.host) return p.host.test(new URL(tab.url).host)
+        return p.regex.test(tab.url)
+    })
     if (!page) return setPopup(defaultPopup);
 
     const { config } = await chrome.storage.local.get('config')
@@ -76,9 +75,13 @@ chrome.tabs.onUpdated.addListener(async (...args) => {
 
 
 const appededKeys = ['fn']
+chrome.alarms.clearAll()
 for (const key in alarms) {
     const keys = Object.keys(alarms[key]).filter(k => !appededKeys.includes(k)) // gets AlarmCreateInfo keys from entry
     const data = Object.fromEntries(keys.map(k => [k, alarms[key][k]])) // maps into k,v pair
     chrome.alarms.create(key, data)
 }
-chrome.alarms.onAlarm.addListener(({ name }) => alarms[name].fn())
+chrome.alarms.onAlarm.addListener(({ name }) => {
+    console.log(`[Alarm] ${name}`)
+    alarms[name].fn()
+})

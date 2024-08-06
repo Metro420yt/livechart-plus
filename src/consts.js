@@ -30,6 +30,12 @@ export const settingsMap = {
         description: 'Listen for keybound actions',
         default: true,
     },
+    trueStreamCount: {
+        title: 'True Stream Counts',
+        description: 'Correctly show stream counts based on current mark filters',
+        default: true,
+        relation: 'livechart',
+    },
 
     //library
     pendingRls: {

@@ -20,25 +20,30 @@
     width: 1.6rem;
 }
 
-#lcx-behind>p {
+#lcx-behind>div {
     position: absolute;
     top: var(--lcx-behind-pos);
     left: var(--lcx-behind-pos);
 
     background-color: #ff824a;
 
-    width: var(--lcx-behind-size);
+    min-width: 1rem;
     height: var(--lcx-behind-size);
 
-    border-radius: 50%;
+    border-radius: 20px;
 
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
+#lcx-behind>div>span {
+    direction: rtl;
+    padding: .1rem;
 }
 
 .grow>*:not(:first-child) {
+    /*buttons next to filters*/
     margin: 0;
     margin-left: 1rem;
 }

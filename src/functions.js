@@ -65,7 +65,7 @@ export function setPopup(dir = '', tabId) {
 export function script(tabId, ...args) {
     return new Promise((resolve) => {
         var func, scriptArgs = []
-        args.forEach(a => {
+        args.forEach(a => { //parse args and func
             if (typeof a === 'function') return func = a
             if (Array.isArray(a)) scriptArgs.push(...a)
             else scriptArgs.push(a)
@@ -127,6 +127,14 @@ export function formatTime(data, type = 'second') {
 export function ScriptHandler(tabId, settings) {
     return (key, func, args) => {
         if (key === undefined || settings?.[key]) chrome.scripting.executeScript({ target: { tabId }, func, args })
-        else if (key !== undefined && settings?.[key] === undefined) console.warn('script setting doesnt exist: ' + key)
+        else if (key !== undefined && settings?.[key] === undefined) console.warn(`[Script Handler] script setting doesnt exist: ${key}`)
     }
+}
+
+
+export const storage = {
+    async getLocal(keys) {
+        const v = await chrome.storage.local.get(keys)
+        return typeof keys === 'string' || keys.length === 1 ? v[keys] : v
+    },
 }

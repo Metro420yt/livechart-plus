@@ -2,11 +2,26 @@
 interface PageItem {
     regex: RegExp
     background?: VoidFunction
-    popup?: string
 }
 type Alarm = {
     [key: string]: { fn: VoidFunction } & chrome.alarms.AlarmCreateInfo
 }
+
+
+// request.js
+import { formatTime } from "./functions"
+interface RequestOptions {
+    ttl: Parameters<typeof formatTime>[0]
+}
+
+interface RequestData extends Omit<RequestInit, 'body'> {
+    body?: object | string
+}
+export type Request = (
+    url: string,
+    data?: RequestData,
+    options?: Partial<RequestOptions>
+) => Promise<{ [key: string]: any, httpStatus: number }>
 
 
 // consts.js

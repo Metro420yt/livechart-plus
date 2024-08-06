@@ -1,7 +1,7 @@
 {
   "name": "Livechart+",
   "description": "Adding features to livechart and anime streaming sites",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "manifest_version": 3,
   "minimum_chrome_version": "88",
   "permissions": [

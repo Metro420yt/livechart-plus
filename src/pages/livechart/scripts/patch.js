@@ -1,5 +1,6 @@
 export default (config) => {
-    // changes target on modalOpen
+    // issue: using keyboard to open the library edit modal, after opened the button is still selected allowing multiple modals to open
+    // fix: move the focus to the status dropdown when opened
     var modalOpenSource
     document.addEventListener('modalOpen', ({ detail }) => {
         modalOpenSource = detail.target
@@ -8,6 +9,7 @@ export default (config) => {
     document.addEventListener('modalClose', () => modalOpenSource?.focus())
 
 
-    // makes episodeIncrementButton unselectable on keyboard
+    // issue: when using keyboard navigation, focusing on the "+" button, the anime card will offset vertically and stay like that
+    // fix: makes the "+" button unselectable on keyboard, just use the modal, could probably have a better fix
     document.querySelectorAll('[data-user-library-anime-target="episodeIncrementButton"]').forEach(e => e.setAttribute('tabindex', '-1'))
 }

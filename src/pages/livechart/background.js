@@ -2,12 +2,13 @@ import { ScriptHandler, getSettings, script } from "../../functions.js";
 
 import library from "./paths/library.js";
 import search from "./paths/search.js";
+import streams from "./paths/streams.js";
 
+import betterActionFn from './scripts/betterActions.js';
 import betterDropdownFn from './scripts/betterDropdowns.js';
 import eventsFn from './scripts/events.js';
 import keybindsFn from './scripts/keybinds.js';
 import patchFn from './scripts/patch.js';
-import smallActionFn from './scripts/smallActions.js';
 
 
 export default async (tab, config) => {
@@ -18,13 +19,14 @@ export default async (tab, config) => {
 
     await script(tab.id, eventsFn, config)
     if (query) exec('overwriteUrl', changeLinks, [query, config.selector.username])
-    exec('smallActionButtons', smallActionFn, [config])
+    exec('smallActionButtons', betterActionFn, [config, chrome.runtime.getURL('/assets/annoucement.svg')])
     exec('keybinds', keybindsFn, [config])
     exec('betterDropdowns', betterDropdownFn, [config])
     exec(undefined, patchFn, [config])
 
     if (/\/users\/.*\/library/.test(tab.url)) library({ tab, query, settings })
     else if (settings.recentSearches && /\/search/.test(tab.url)) search(tab)
+    else if (/\/streams/.test(tab.url)) streams({ tab, settings })
 }
 
 

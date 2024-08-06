@@ -105,12 +105,13 @@ export default (tab, config, settings) => {
                     var data
                     if (res.httpStatus === undefined) data = res.find(d => d.streams.crunchyroll === id)?.nextEpisode
 
-                    if (!data) data = { expires: Date.now() + 86400000 }
+                    if (!data) data = { expires: Date.now() + 86400000 } //1d
                     nextEpisode[id] = data
                     setTimeout(() => render(list.querySelector(`a[href^="/series/${id}"]`), id), 50)
                 })
                 askFor = []
 
+                // cleanup
                 Object.keys(nextEpisode)
                     .filter(k => nextEpisode[k].expires < Date.now())
                     .slice(100)

@@ -39,7 +39,7 @@ for (const element of settingsTags) {
             title.innerText = relationMap[group] || group
             div.appendChild(title)
 
-            for (const key in groups[group]) await createSetting(key, div)
+            for (const key in groups[group]) if (settingsMap[key].popout !== false) await createSetting(key, div)
             if (group !== 'Ungrouped') element.appendChild(div)
             else append.push(div)
         }
@@ -166,8 +166,10 @@ async function createSetting(key, parent) {
         else if (typeof map.default === 'number') {
             input.type = 'range'
             input.value = settings[key]
-            input.min = map.range[0]
-            input.max = map.range[1]
+            if (map.range) {
+                input.min = map.range[0]
+                input.max = map.range[1]
+            }
 
             var delay
             const str = label.innerText

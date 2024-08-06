@@ -9,7 +9,7 @@ export default (config) => {
     status.appendChild(button)
 
     button.onclick = ({ target }) => {
-        for (const btn of document.querySelectorAll(`[id^="lcx-btn-"][data-toggled="true"]:not(#${button.id})`)) btn.click()
+        for (const btn of document.querySelectorAll(`[id^="lcx-btn-"][data-toggled="true"]:not(#${button.id})`)) btn.click() //toggle all lcx buttons
         const animes = document.querySelectorAll(config.selector.library.anime)
 
         if (target.dataset.toggled === 'true') {
@@ -22,7 +22,10 @@ export default (config) => {
                 const countdown = anime.querySelector(config.selector.library.countdown)
                 const nextEp = anime.querySelector(config.selector.library.nextEp)
 
-                if (countdown && nextEp.innerText?.match(/^(EP1|THTR) /)) anime.style.display = ''
+                if (
+                    countdown
+                    && (nextEp.innerText && /^(EP1|THTR)/.test(nextEp.innerText))
+                ) anime.style.display = ''
                 else anime.style.display = 'none'
             }
         }

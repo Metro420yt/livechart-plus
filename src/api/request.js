@@ -6,12 +6,7 @@ setInterval(() => {
         delete cache[k]
     }
 }, 30000);
-/**
- * @param {string} url
- * @param {RequestInit} data
- * @param {{ttl:Parameters<formatTime>[0]}} options
- * @returns {Promise<{[key:string]:any,httpStatus:number}>}
-*/
+/**@type {import("../types.js").Request}*/
 export default async (url, data = {}, options = {}) => {
     const cachedData = cache[url]
     console.log(data.method || 'get', url, !!cachedData ? 'cached' : '')
@@ -34,6 +29,7 @@ export default async (url, data = {}, options = {}) => {
         'x-crx-author': '@metro420yt (contact@yuji.app)'
     }
 
+    if (!data.method && data.body) data.method = 'post'
     if (data.method?.toUpperCase() === 'POST') headers['Content-Type'] = 'application/json'
 
     data.headers = Object.assign(headers, data.headers)
@@ -47,7 +43,6 @@ export default async (url, data = {}, options = {}) => {
     var res = {}
     res._uncache = () => delete cache[url]
     res._setcache = (response) => cache[url].response = response
-    if (!f.ok) return res._setcache({ error: f.statusText, httpStatus: f.status })
 
     if (f.headers.get('Content-Type').includes('application/json')) res = Object.assign(await f.json(), res)
     else res._text = await f.text()
