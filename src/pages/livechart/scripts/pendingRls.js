@@ -24,7 +24,7 @@ export default (config) => {
 
                 if (
                     countdown
-                    && (nextEp.innerText && /^(EP1|THTR)/.test(nextEp.innerText))
+                    && (nextEp.innerText && /^(EP1|THTR) /.test(nextEp.innerText))
                 ) anime.style.display = ''
                 else anime.style.display = 'none'
             }

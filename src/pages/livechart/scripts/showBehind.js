@@ -51,25 +51,33 @@ export default (settings, behindIcon, config) => {
     function isBehind(anime, force = false, watched) {
         if (!force && anime.dataset.behind) return Number(anime.dataset.behind)
 
-        const hasCountdown = anime.querySelector(config.selector.library.countdown)
+        const countdownElement = anime.querySelector(config.selector.library.countdown)
         if (
-            (settings.behindCountdown !== false && !hasCountdown)
+            (settings.behindCountdown !== false && !countdownElement)
             || anime.querySelector(config.selector.library.format)?.innerText.match(/tba/i)
             || anime.querySelector(config.selector.library.countdownParent)?.innerText.match(/tbd/i)
         ) return anime.dataset.behind = 0
 
         if (watched === undefined) watched = anime.querySelector(config.selector.library.epProgress)?.innerText
         var nextEp = anime.querySelector(config.selector.library.nextEp)?.innerText.match(/EP(\d+)/i)?.[1]
+
+        var dateTime = anime
+        do dateTime = dateTime.querySelector(config.selector.library.dateTime)
+        while (dateTime && dateTime?.children.length > 0)
+
         if (!nextEp) {
             nextEp = anime.dataset.userLibraryAnimeEpisodeCount
             var isReleased = true
         }
+        else isReleased = dateTime === 'Released'
         const inFilter = settings.behindStatusFilter.includes(anime.dataset.libraryStatus)
 
         if (
             anime.querySelector(config.selector.library.hiatus)
             || nextEp === undefined
-            || (settings.behindCountdown && !hasCountdown)
+            // || !isReleased
+            || dateTime?.dataset.controller === 'intl-time'
+            || (settings.behindCountdown && !countdownElement)
             || !inFilter
 
         ) return anime.dataset.behind = 0 // not behind
@@ -78,11 +86,10 @@ export default (settings, behindIcon, config) => {
         nextEp = Number(nextEp.replace(/[^0-9]/g, ''))
         const epBehind = nextEp - watched
 
-        const dateTime = anime.querySelector(config.selector.library.dateTime)
         if (
-            ((hasCountdown || dateTime) && epBehind > 1)
-            || (!hasCountdown && settings.behindCountdown === false)
-        ) return anime.dataset.behind = ((hasCountdown || dateTime) && !isReleased ? epBehind - 1 : epBehind)
+            (countdownElement && epBehind > 1)
+            || (!countdownElement && settings.behindCountdown === false)
+        ) return anime.dataset.behind = (countdownElement || dateTime) && !isReleased ? epBehind - 1 : epBehind
 
         return anime.dataset.behind = 0
     }

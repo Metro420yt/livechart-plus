@@ -2,6 +2,7 @@
 interface PageItem {
     regex: RegExp
     background?: VoidFunction
+    popup?: string
 }
 type Alarm = {
     [key: string]: { fn: VoidFunction } & chrome.alarms.AlarmCreateInfo

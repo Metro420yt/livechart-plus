@@ -142,7 +142,7 @@ async function createSetting(key, parent) {
         }))
 
 
-        if (Array.isArray(map.options)) {
+        if (input.multiple) {
             input.onmouseover = () => {
                 if (input.disabled) return;
                 const { height } = input.children[0].getClientRects()[0]

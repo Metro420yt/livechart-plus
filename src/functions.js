@@ -1,9 +1,9 @@
 import { settingsMap } from './consts.js';
 
-export function display({ title, color, badge, tabId }) {
-    if (badge) chrome.action.setBadgeText({ text: badge, tabId })
-    if (title) chrome.action.setTitle({ title, tabId })
-    if (color) {
+export function display({ title, color, badge, tabId = undefined }) {
+    if (badge !== undefined) chrome.action.setBadgeText({ text: badge, tabId })
+    if (title !== undefined) chrome.action.setTitle({ title, tabId })
+    if (color !== undefined) {
         if (!color.startsWith('#')) color = '#' + color
         chrome.action.setBadgeBackgroundColor({ color, tabId })
     }
@@ -49,8 +49,8 @@ export const getSettings = async () => {
     return settings
 }
 
-export function setPopup(dir = '', tabId) {
-    if (dir === '') return chrome.action.disable(tabId)
+export function setPopup(dir, tabId) {
+    if (!dir) return chrome.action.disable(tabId)
 
     try {
         chrome.action.setPopup({ popup: dir, tabId })
@@ -125,6 +125,7 @@ export function formatTime(data, type = 'second') {
 }
 
 export function ScriptHandler(tabId, settings) {
+    /**@param {string?} key key in settings that must be true to run fn*/
     return (key, func, args) => {
         if (key === undefined || settings?.[key]) chrome.scripting.executeScript({ target: { tabId }, func, args })
         else if (key !== undefined && settings?.[key] === undefined) console.warn(`[Script Handler] script setting doesnt exist: ${key}`)
@@ -133,8 +134,9 @@ export function ScriptHandler(tabId, settings) {
 
 
 export const storage = {
+    /**@param {string|string[]} keys */
     async getLocal(keys) {
         const v = await chrome.storage.local.get(keys)
-        return typeof keys === 'string' || keys.length === 1 ? v[keys] : v
+        return (typeof keys === 'string' || keys.length === 1) ? v[keys] : v
     },
 }

@@ -1,7 +1,5 @@
-import { defaultPopup } from '../../consts.js';
-import { getSettings, requestPerm, script, setPopup } from '../../functions.js';
-import watchlistFn from './paths/watchlist.js';
-import hideWatched from "./scripts/hideWatched.js";
+import { getSettings, requestPerm, script } from '../../functions.js';
+import watchlistPath from './paths/watchlist.js';
 
 
 const reset = (tabId, page) => script(tabId, page, (page) => {
@@ -16,22 +14,14 @@ const reset = (tabId, page) => script(tabId, page, (page) => {
 })
 
 export default async (tab, config) => {
-    if (!await requestPerm('https://*.crunchyroll.com/*')) return setPopup(defaultPopup);
+    if (!await requestPerm('https://*.crunchyroll.com/*')) return;
 
     const urlArgs = tab.url.split('.com/')?.[1].split('/')
     reset(tab.id, urlArgs[0])
 
     const settings = await getSettings()
-    if (urlArgs[0] === 'watchlist') watchlistFn(tab, config, settings)
-    else if (urlArgs[0] === 'series') {
-        chrome.scripting.insertCSS({ // cr navigation doesnt trigger content scripts
-            target: { tabId: tab.id },
-            files: ['/pages/crunchyroll/series.css']
-        })
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: hideWatched,
-            args: [settings.hideWatched, config]
-        })
-    }
+    const pathArgs = [tab, settings, config]
+
+    if (urlArgs[0] === 'watchlist') watchlistPath(...pathArgs)
+    else if (urlArgs[0] === 'series') seriesPath(...pathArgs)
 }

@@ -1,6 +1,6 @@
 import request from './api/request.js';
 import { defaultPopup, settingsMap } from './consts.js';
-import { getSettings, setPopup } from './functions.js';
+import { display, getSettings, setPopup, storage } from './functions.js';
 
 import crunchyrollBg from './pages/crunchyroll/background.js';
 import livechartBg from './pages/livechart/background.js';
@@ -55,6 +55,7 @@ async function updateConfig() {
     return config
 }
 
+
 chrome.runtime.onStartup.addListener(startup)
 chrome.runtime.onInstalled.addListener(startup)
 
@@ -71,6 +72,15 @@ chrome.tabs.onUpdated.addListener(async (...args) => {
     const { config } = await chrome.storage.local.get('config')
     if (page.popup) setPopup(page.popup, tab.id)
     if (page.background) page.background(tab, config)
+})
+
+chrome.permissions.onAdded.addListener(async (granted) => {
+    granted = Object.values(granted).flat()
+    const reqesting = await storage.getLocal('requestingPerms')
+
+    await chrome.storage.local.set({ requestingPerms: reqesting.filter(p => !granted.includes(p)) })
+    display({ badge: '' })
+    chrome.tabs.reload()
 })
 
 
